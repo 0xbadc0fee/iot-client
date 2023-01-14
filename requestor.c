@@ -13,7 +13,7 @@
 #define INIT_ERR	1
 #define REQ_ERR		2
 
-#define URL		"http://localhost:8000"
+#define URL		"http://192.168.45.128:8000"
 
 int main(void)
 {
