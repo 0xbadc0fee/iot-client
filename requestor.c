@@ -23,7 +23,7 @@ int main(void)
   if(curl) {
     curl_easy_setopt(curl, CURLOPT_URL, URL);
     res = curl_easy_perform(curl);
-    if (res != CURLM_OK) {
+    if (res != CURLE_OK) {
 	    return REQ_ERR;
     }
     /* always cleanup */

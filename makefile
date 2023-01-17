@@ -6,9 +6,9 @@ LFLAGS=-L/usr/lib/x86_64-linux-gnu
 #LFLAGS=-L/buildroot/output/build/libcurl-7.83.1/include/curl
 LIBS=-lcurl -lpthread
 
-SRC=requestor.c
+SRC=hw.c
 OBJ=$(SRC:.c=.o)
-MAIN=test
+MAIN=hw
 
 RM=rm -rf
 
