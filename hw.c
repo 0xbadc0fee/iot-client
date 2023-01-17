@@ -29,15 +29,15 @@
 
 //#define URL       "http://192.168.1.1:8000"
 
-char *url, *curl_message;
-CURL *curl;
-CURLcode res;
+//char *url, *curl_message;
+//CURL *curl;
+//CURLcode res;
 
 /* Internal Functions */
 
 /*CURL modes, mutually exclusive, select one*/
 
-void curl_get() {
+void curl_get(char *url, CURL *curl, CURLcode res) {
   if(curl) {
     curl_easy_setopt(curl, CURLOPT_URL, url);
     /*GET is default mode, no special options necessary*/
@@ -54,13 +54,13 @@ void curl_get() {
   }
 }
 
-void curl_post() {
+void curl_post(char *url,char *message, CURL *curl, CURLcode res) {
   if(curl) {
     curl_easy_setopt(curl, CURLOPT_URL, url);
     /*POST mode options*/
     curl_easy_setopt(curl, CURLOPT_POST, 1L);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, curl_message);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(curl_message));
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, message);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, (long)strlen(message));
     res = curl_easy_perform(curl);
     if(res != CURLE_OK) {
       fprintf(stderr, "[CURL] Could not complete: %s\n", curl_easy_strerror(res));
@@ -73,12 +73,12 @@ void curl_post() {
   }
 }
 
-void curl_put() {
+void curl_put(char *url,char *message, CURL *curl, CURLcode res ) {
   if(curl) {
     curl_easy_setopt(curl, CURLOPT_URL, url);
     /*PUT mode options*/
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, curl_message);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, message);
     res = curl_easy_perform(curl);
     if(res != CURLE_OK) {
       fprintf(stderr, "[CURL] Could not complete: %s\n", curl_easy_strerror(res));
@@ -91,12 +91,12 @@ void curl_put() {
   }
 }
 
-void curl_delete() {
+void curl_delete(char *url, char *message, CURL *curl, CURLcode res) {
   if(curl) {
     curl_easy_setopt(curl, CURLOPT_URL, url);
     /*DELETE mode options*/
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, curl_message);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, message);
     res = curl_easy_perform(curl);
     if(res != CURLE_OK) {
       fprintf(stderr, "[CURL] Could not complete: %s\n", curl_easy_strerror(res));
@@ -157,13 +157,13 @@ int main(int argc, char **argv) {
   int dflag = 0;
   
   int c;
-//  char *curl_message;
-//  char *url = NULL;
+  char *message;
+  char *url = NULL;
 
-//  CURL *curl;
-//  CURLcode res;
+  CURL *curl;
+  CURLcode res;
 
-//  curl = curl_easy_init();
+  curl = curl_easy_init();
 
   static struct option long_options[] = {
     {"get",      required_argument,       0,    'g'},
@@ -211,19 +211,19 @@ int main(int argc, char **argv) {
   }
 
 if (gflag){
-	curl_get();
+	curl_get(url, curl, res);
 	printf("running curl_get\n");
 }
 if (oflag){
-	curl_post();
+	curl_post(url, message, curl, res);
 	printf("running curl_post\n");
 }
 if (pflag){
-	curl_put();
+	curl_put(url, message, curl, res);
 	printf("running curl_put\n");
 }
 if (dflag){
-	curl_delete();
+	curl_delete(url, message, curl, res);
 	printf("running curl_delete\n");
 }
 
