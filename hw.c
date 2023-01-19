@@ -20,21 +20,34 @@
 #include <getopt.h> /*someimtes required if unistd.h alone doesn't work*/
 #include <curl/curl.h>
 #include <string.h>
+#include <errno.h> /* NOTE: using for debugging, consider removing before deploy*/
 
-/* cURL status constants */
+/*NOTE: debug & dev comments are denoted 'NOTE', clean them up before deploying*/
+
+/* GLOBAL CONSTANTS */
 
 #define OK        0
 #define INIT_ERR  0
 #define REQ_ERR   0
 
 //#define URL       "http://192.168.1.1:8000"
+// NOTE: may need to use ' --resolve example.com:443:127.0.0.1' method if trouble parsing 'localhost' later
 
-//char *url, *curl_message;
-//CURL *curl;
-//CURLcode res;
 
-/* Internal Functions */
+/* GLOBAL VARIABLES */
 
+struct flags
+{
+  int g;
+  int o;
+  int p;
+  int d;
+  int h;
+  int v;
+  int u;
+};
+
+/* GLOBAL FUNCTIONS */
 /*CURL modes, mutually exclusive, select one*/
 
 void curl_get(char *url, CURL *curl, CURLcode res) {
@@ -54,7 +67,7 @@ void curl_get(char *url, CURL *curl, CURLcode res) {
   }
 }
 
-void curl_post(char *url,char *message, CURL *curl, CURLcode res) {
+void curl_post(char *url, char *message, CURL *curl, CURLcode res) {
   if(curl) {
     curl_easy_setopt(curl, CURLOPT_URL, url);
     /*POST mode options*/
@@ -73,7 +86,7 @@ void curl_post(char *url,char *message, CURL *curl, CURLcode res) {
   }
 }
 
-void curl_put(char *url,char *message, CURL *curl, CURLcode res ) {
+void curl_put(char *url, char *message, CURL *curl, CURLcode res) {
   if(curl) {
     curl_easy_setopt(curl, CURLOPT_URL, url);
     /*PUT mode options*/
@@ -109,7 +122,7 @@ void curl_delete(char *url, char *message, CURL *curl, CURLcode res) {
   }
 }
 
-/* Other functions, non-curl */
+/* Other GLOBAL functions, non-curl */
 
 void hw_help() {
   printf("HELP MESSAGE HERE\n");
@@ -123,39 +136,27 @@ void hw_version() {
   printf("VERSION MESSAGE HERE\n");
 }
 
-/* Strucure for command line arguments */
-/*struct arguments
- {
-   int a;
-   int b;
-   int c;
-   int area;
-   int perimeter;
- };
-*/
 
 /************************************/
 
 int main(int argc, char **argv) {
   int long_index=0;
-  /* struct arguments arguments; */
 
-  /* Default values.
-  arguments.get = -1;
-  arguments.post = -1;
-  arguments.put = -1;
-  arguments.delete = -1;
-  arguments.url = 0;
-  arguments.help = 0;
-  arguments.version = 0;
-  arguments.data = 0;
-  */
+  /* ARGUMENT FLAGS */
 
-  int gflag = 0;
-  int oflag = 0;
-  int pflag = 0;
-  int dflag = 0;
-  
+  struct flags flags;
+
+  /*Default flags values*/
+  flags.g = 0;
+  flags.o = 0;
+  flags.p = 0;
+  flags.d = 0;
+  flags.u = 0;
+  flags.h = 0;
+  flags.v = 0;
+
+  /*CURL inputs*/
+
   int c;
   char *message;
   char *url = NULL;
@@ -165,33 +166,40 @@ int main(int argc, char **argv) {
 
   curl = curl_easy_init();
 
+  //DEFINE ARGUMENTS
   static struct option long_options[] = {
-    {"get",      required_argument,       0,    'g'},
-    {"post",     required_argument,       0,    'o'},
-    {"put",      required_argument,       0,    'p'},
-    {"delete",   required_argument,       0,    'd'},
+    {"get",      no_argument,             0,    'g'},
+    {"post",     no_argument,             0,    'o'},
+    {"put",      no_argument,             0,    'p'},
+    {"delete",   no_argument,             0,    'd'},
     {"url",      required_argument,       0,    'u'},
     {"help",     no_argument,             0,    'h'},
     {"version",  no_argument,             0,    'v'},
     {0,          0 ,                      0,     0 }
   };
 
-//c = getopt_long(argc, argv, "gopdu:hv", long_options, &long_index);
+  // COLLECT ARGUMENTS
+  //c = getopt_long(argc, argv, "gopdu:hv", long_options, &long_index);
   while ((c = getopt_long(argc, argv, "gopdu:hv", long_options, &long_index)) != -1){	  
     switch (c) {
     case 'g':
-      gflag = 1;
+      flags.g = 1;
+      printf("option -g --get set. Setting flags.g = 1  \n");
       break;
     case 'o':
-      oflag = 1;
+      flags.o = 1;
+      printf("option -o --put set. Setting flags.o = 1  \n");
       break;
     case 'p':
-      pflag = 1;
+      flags.p = 1;
+      printf("option -p --post set. Setting flags.p = 1  \n");
       break;
     case 'd':
-      dflag = 1;
+      flags.d = 1;
+      printf("option -d --delete set. Setting flags.d = 1  \n");
       break;
     case 'u':
+      flags.u = 1;
       url = optarg;
       printf("option u with value '%s'\n", url);
       break;
@@ -210,22 +218,65 @@ int main(int argc, char **argv) {
     }
   }
 
-if (gflag){
-	curl_get(url, curl, res);
+  // URL STRING PARSING VALIDATION...
+
+  // VALIDATE & PROCESS ARGUMENTS - CURL COMMANDS FIRST THEN HELP, USAGE, VERSION
+if (flags.g == 1){
+  if ((flags.g + flags.o + flags.p + flags.d) > 1){
+    printf("WARNING:Too many options chosen!\n");
+    hw_usage;
+    exit(1);
+  }
+  if (flags.u != 1){
+    printf("WARNING: No URL specified!\n");
+  }
+  else {
 	printf("running curl_get\n");
+  printf("URL: %s\n", url);
+  curl_get(url, curl, res);
+  printf("CURL response code: %d\n", res);
+  return 0;  /*exit program, succeede*/
+ }
 }
-if (oflag){
-	curl_post(url, message, curl, res);
+if (flags.o == 1){
+  if ((flags.g + flags.o + flags.p + flags.d) > 1){
+    printf("WARNING:Too many options chosen!\n");
+    hw_usage;
+    exit(1);
+  } else {
+  curl_post(url, message, curl, res);
 	printf("running curl_post\n");
+ }
 }
-if (pflag){
+if (flags.p == 1){
+  if ((flags.g + flags.o + flags.p + flags.d) > 1){
+    printf("WARNING:Too many options chosen!\n");
+    hw_usage;
+    exit(1);
+  } else {
 	curl_put(url, message, curl, res);
 	printf("running curl_put\n");
+  }
 }
-if (dflag){
+if (flags.d == 1){
+  if ((flags.g + flags.o + flags.p + flags.d) > 1){
+    printf("WARNING:Too many options chosen!\n");
+    hw_usage;
+    exit(1);
+  } else {
 	curl_delete(url, message, curl, res);
 	printf("running curl_delete\n");
+  }
 }
+ if (flags.h == 1){
+   hw_help();
+ }
+ if (flags.v == 1){
+   hw_version();
+ }
+ else {
+   printf("WARNING: No modes selected!\n");
+ }
 
-  return 0;
+ return 0;
 }

@@ -7,9 +7,9 @@ INCLUDES=
 #LFLAGS=-L/buildroot/output/build/libcurl-7.83.1/include/curl
 LIBS=-lcurl -uClib -lc
 
-SRC=requestor.c
+SRC=hw.c
 OBJ=$(SRC:.c=.o)
-MAIN=test
+MAIN=hw_arm
 
 RM=rm -rf
 

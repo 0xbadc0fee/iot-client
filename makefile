@@ -8,7 +8,7 @@ LIBS=-lcurl -lpthread
 
 SRC=hw.c
 OBJ=$(SRC:.c=.o)
-MAIN=hw
+MAIN=hw_x86
 
 RM=rm -rf
 
