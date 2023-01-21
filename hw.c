@@ -14,6 +14,10 @@
 *
 ************************/
 
+/*SINGLE LINE MAKE FOR QEMU ARM GUEST:
+/home/sgc/buildroot-2022.11/output/host/usr/bin/arm-linux-gcc --sysroot=/home/sgc/buildroot-2022.11/output/staging hw.c -o hw_oneliner -lcurl -lc
+*/
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -125,15 +129,21 @@ void curl_delete(char *url, char *message, CURL *curl, CURLcode res) {
 /* Other GLOBAL functions, non-curl */
 
 void hw_help() {
-  printf("HELP MESSAGE HERE\n");
+  printf("Usage: hw [OPTION] -u, --url  <URL>\n");
+  printf("    -g, --get Retrieve contents at <URL>\n");
+  printf("    -o, --post POST message to <URL>\n");
+  printf("    -p, --put PUT contents to <URL>\n");
+  printf("    -d, --delete Delete string from \n");
+  printf("    -v, --version Print current version number\n");
+  printf("    -h, --Print help document \n");
 }
 
 void hw_usage() {
-  printf("USAGE MESSAGE HERE\n");
+  printf("Usage: hw [OPTION] -u, --url  <URL>\n");
 }
 
 void hw_version() {
-  printf("VERSION MESSAGE HERE\n");
+  printf("VERSION: 06.01.1991 \n");
 }
 
 
@@ -145,6 +155,7 @@ int main(int argc, char **argv) {
   /* ARGUMENT FLAGS */
 
   struct flags flags;
+  int index;
 
   /*Default flags values*/
   flags.g = 0;
@@ -158,7 +169,8 @@ int main(int argc, char **argv) {
   /*CURL inputs*/
 
   int c;
-  char *message;
+  //  char *message;
+  char message[100]={0};
   char *url = NULL;
 
   CURL *curl;
@@ -205,9 +217,11 @@ int main(int argc, char **argv) {
       break;
     case 'h':
       printf("option h chosen\n");
+      hw_help();
       break;
     case 'v':
       printf("option v chosen\n");
+      hw_version();
       break;
     case '?':
       printf("Unknown option: %c\n", optopt);
@@ -218,9 +232,22 @@ int main(int argc, char **argv) {
     }
   }
 
-  // URL STRING PARSING VALIDATION...
+  // NON-OPTION ARGUMENT STRING PARSING
+  for (index = optind; index < argc; index++)
+    {
+      printf("non-option argument string: %s\n", argv[index]);
+      strcat(message, argv[index]);
+    }
+
+  printf("Assembled String: %s\n", message);
 
   // VALIDATE & PROCESS ARGUMENTS - CURL COMMANDS FIRST THEN HELP, USAGE, VERSION
+  if ((flags.g + flags.o + flags.p + flags.d)==0){
+    printf("NO MODES SELECTED\n\n");
+    hw_usage;
+    exit(1);
+  }
+
 if (flags.g == 1){
   if ((flags.g + flags.o + flags.p + flags.d) > 1){
     printf("WARNING:Too many options chosen!\n");
@@ -274,9 +301,9 @@ if (flags.d == 1){
  if (flags.v == 1){
    hw_version();
  }
- else {
-   printf("WARNING: No modes selected!\n");
- }
+ // else {
+ //  printf("WARNING: No modes selected!\n");
+ //}
 
  return 0;
 }
