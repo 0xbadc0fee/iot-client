@@ -235,64 +235,70 @@ int main(int argc, char **argv) {
   // NON-OPTION ARGUMENT STRING PARSING
   for (index = optind; index < argc; index++)
     {
-      printf("non-option argument string: %s\n", argv[index]);
+      printf("\nnon-option argument string: %s\n", argv[index]);
       strcat(message, argv[index]);
     }
 
-  printf("Assembled String: %s\n", message);
+  printf("\nAssembled String: %s\n", message);
 
   // VALIDATE & PROCESS ARGUMENTS - CURL COMMANDS FIRST THEN HELP, USAGE, VERSION
   if ((flags.g + flags.o + flags.p + flags.d)==0){
-    printf("NO MODES SELECTED\n\n");
+    printf("\nNO MODES SELECTED\n\n");
     hw_usage;
     exit(1);
   }
 
 if (flags.g == 1){
   if ((flags.g + flags.o + flags.p + flags.d) > 1){
-    printf("WARNING:Too many options chosen!\n");
+    printf("\nWARNING:Too many options chosen!\n");
     hw_usage;
     exit(1);
   }
   if (flags.u != 1){
-    printf("WARNING: No URL specified!\n");
+    printf("\nWARNING: No URL specified!\n");
   }
   else {
-	printf("running curl_get\n");
-  printf("URL: %s\n", url);
-  curl_get(url, curl, res);
-  printf("CURL response code: %d\n", res);
-  return 0;  /*exit program, succeede*/
+	  printf("\n...running curl_get\n");
+    printf("\nURL: %s\n", url);
+    curl_get(url, curl, res);
+    printf("\nCURL response code: %d\n", res);
+  return 0;  /*exit program, succeeded*/
  }
 }
 if (flags.o == 1){
   if ((flags.g + flags.o + flags.p + flags.d) > 1){
-    printf("WARNING:Too many options chosen!\n");
+    printf("\nWARNING:Too many options chosen!\n");
     hw_usage;
     exit(1);
   } else {
-  curl_post(url, message, curl, res);
-	printf("running curl_post\n");
+    printf("\n...running curl_post()\n");
+    curl_post(url, message, curl, res);
+    printf("\nCURL response code: %d\n", res);
+    return 0;
  }
 }
 if (flags.p == 1){
   if ((flags.g + flags.o + flags.p + flags.d) > 1){
-    printf("WARNING:Too many options chosen!\n");
+    printf("\nWARNING:Too many options chosen!\n");
     hw_usage;
     exit(1);
   } else {
-	curl_put(url, message, curl, res);
-	printf("running curl_put\n");
+    printf("\n...running curl_put()\n");
+    curl_put(url, message, curl, res);
+	  printf("\nCURL response code: %d\n", res);
+    return 0;
   }
 }
 if (flags.d == 1){
   if ((flags.g + flags.o + flags.p + flags.d) > 1){
-    printf("WARNING:Too many options chosen!\n");
+    printf("\nWARNING:Too many options chosen!\n");
     hw_usage;
     exit(1);
   } else {
-	curl_delete(url, message, curl, res);
-	printf("running curl_delete\n");
+    printf("\n...running curl_delete()\n");
+    curl_delete(url, message, curl, res);
+	  printf("\nCURL response code: %d\n", res);
+    return 0;
   }
 }
  if (flags.h == 1){
