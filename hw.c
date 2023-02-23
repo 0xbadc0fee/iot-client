@@ -236,7 +236,7 @@ int main(int argc, char **argv) {
   for (index = optind; index < argc; index++)
     {
       printf("\nnon-option argument string: %s\n", argv[index]);
-      strncat(message, argv[index], 10); //added 3rd arg for strncat
+      strncat(message, argv[index], 10);
     }
 
   printf("\nAssembled String: %s\n", message);
